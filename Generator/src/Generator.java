@@ -29,18 +29,18 @@ public class Generator {
 	public static void main(String[] args) {
 		Generator generator = new Generator();
 		generator.beepForAnHour();
-//		try {
-//			Scanner sc = new Scanner(new File("C:/Users/Kagami/Desktop/Dane paliwowe/Dane paliwowe/Zestaw 1/nozzleMeasures.log"));
-//			sc.useDelimiter(";");
-//			while (sc.hasNext()) {
-//				System.out.println(sc.next());
-//			}
-//			System.out.println("Did it");
-//		} catch (FileNotFoundException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//			System.out.println("Fail");
-//		}
+		try {
+			Scanner sc = new Scanner(new File("Dane paliwowe/Zestaw 1/nozzleMeasures.log").getAbsoluteFile());
+			sc.useDelimiter(";");
+			while (sc.hasNext()) {
+				System.out.println(sc.next());
+			}
+			System.out.println("Did it");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.out.println("Fail");
+		}
 	}
 //	public static void main(String[] args) {
 //		System.out.println("One: " + new Date());
