@@ -18,23 +18,35 @@ public class Generator {
 	
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	private static List<NozzleMeasure> nozzleMeasures = new LinkedList<NozzleMeasure>();
+	int size;
+	int index = 0;
 	
-	public void beepForAnHour() {
-		
-		final Runnable beeper = new Runnable() {
-			public void run() { System.out.println("beep");}
+	public void send() {
+		size = nozzleMeasures.size();
+		Runnable beeper = new Runnable() {
+			public void run() {
+				for (int i = 0; i <12; i++) {
+					NozzleMeasure temp = nozzleMeasures.get(index);
+					System.out.println(new Date() + " " + temp.locationId + " " + temp.gunId + " " + temp.tankId
+						+ " "+ temp.literCounter + " " + temp.totalCounter + " " + temp.status);
+					index++;
+					if (index == size) {
+						index = 0;
+					}
+				}
+				
+			}
 		};
 		
-		final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(beeper, 10, 10, SECONDS);
-		scheduler.schedule(new Runnable() {
-			public void run() {beeperHandle.cancel(true);}
-		}, 60*60, SECONDS);
+		final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(beeper, 1, 1, MINUTES);
+//		scheduler.schedule(new Runnable() {
+//			public void run() {beeperHandle.cancel(true);}
+//		}, nozzleMeasures.size(), SECONDS);
 		
 	}
 	
 	public static void main(String[] args) throws ParseException {
-		Generator generator = new Generator();
-		//generator.beepForAnHour();
+		
 		try {
 			Scanner sc = new Scanner(new File("Dane paliwowe/Zestaw 1/nozzleMeasures.log").getAbsoluteFile());
 			sc.useDelimiter(";|\\r\\n");
@@ -65,6 +77,8 @@ public class Generator {
 			e.printStackTrace();
 			System.out.println("Fail");
 		}
+		Generator generator = new Generator();
+		generator.send();
 	}
 
 }
