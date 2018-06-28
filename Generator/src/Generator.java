@@ -1,4 +1,6 @@
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -8,10 +10,14 @@ import static java.util.concurrent.TimeUnit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
 public class Generator {
 	
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private static List<NozzleMeasure> nozzleMeasures = new LinkedList<NozzleMeasure>();
 	
 	public void beepForAnHour() {
 		
@@ -26,14 +32,32 @@ public class Generator {
 		
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ParseException {
 		Generator generator = new Generator();
-		generator.beepForAnHour();
+		//generator.beepForAnHour();
 		try {
 			Scanner sc = new Scanner(new File("Dane paliwowe/Zestaw 1/nozzleMeasures.log").getAbsoluteFile());
-			sc.useDelimiter(";");
-			while (sc.hasNext()) {
-				System.out.println(sc.next());
+			sc.useDelimiter(";|\\r\\n");
+			DateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			while (sc.hasNext()) {	
+				Date date = format.parse(sc.next());
+				Integer locationId = null;
+				try {
+					String intString = sc.next();
+					locationId = Integer.parseInt(intString);
+				}
+				catch(NumberFormatException ex) {
+					
+				}
+				int gunId = sc.nextInt();
+				int tankId = sc.nextInt();
+				double literCounter = sc.nextDouble();
+				double totalCounter = sc.nextDouble();
+				boolean status = true;
+				//System.out.println("\\"+sc.next()+"\\");
+				if (sc.nextInt() != 0) { status = true;} else {status = false;}
+				
+				nozzleMeasures.add(new NozzleMeasure(date,locationId,gunId,tankId,literCounter,totalCounter,status));
 			}
 			System.out.println("Did it");
 		} catch (FileNotFoundException e) {
@@ -42,15 +66,5 @@ public class Generator {
 			System.out.println("Fail");
 		}
 	}
-//	public static void main(String[] args) {
-//		System.out.println("One: " + new Date());
-//		try {
-//			Thread.sleep(1000);
-//			System.out.println("Two: "+ new Date());
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		
-//	}
+
 }
