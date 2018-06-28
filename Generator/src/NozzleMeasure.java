@@ -1,6 +1,6 @@
 import java.util.Date;
 
-public class NozzleMeasure {
+public class NozzleMeasure implements java.io.Serializable {
 	Date date;
 	Integer locationId;
 	int gunId;
@@ -18,4 +18,9 @@ public class NozzleMeasure {
 		this.totalCounter = totalCounter;
 		this.status = status;
 	}
+	
+	void setDate(Date ndate) {
+		date = ndate;
+	}
+	
 }

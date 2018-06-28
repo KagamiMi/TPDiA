@@ -10,6 +10,11 @@ import static java.util.concurrent.TimeUnit.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -20,32 +25,46 @@ public class Generator {
 	private static List<NozzleMeasure> nozzleMeasures = new LinkedList<NozzleMeasure>();
 	int size;
 	int index = 0;
+	static ObjectOutputStream os;
+	static ObjectInputStream is;
 	
 	public void send() {
 		size = nozzleMeasures.size();
 		Runnable beeper = new Runnable() {
 			public void run() {
-				for (int i = 0; i <12; i++) {
+				//for (int i = 0; i <12; i++) {
 					NozzleMeasure temp = nozzleMeasures.get(index);
-					System.out.println(new Date() + " " + temp.locationId + " " + temp.gunId + " " + temp.tankId
+					temp.setDate(new Date());
+					System.out.println(temp.date + " " + temp.locationId + " " + temp.gunId + " " + temp.tankId
 						+ " "+ temp.literCounter + " " + temp.totalCounter + " " + temp.status);
+					try {
+						//os.writeInt(56);
+						
+						os.writeObject(temp);
+						os.flush();
+						System.out.println("sended");
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						System.out.println("error here! 43");
+					}
 					index++;
 					if (index == size) {
 						index = 0;
 					}
-				}
+				//}
 				
 			}
 		};
 		
-		final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(beeper, 1, 1, MINUTES);
+		final ScheduledFuture<?> beeperHandle = scheduler.scheduleAtFixedRate(beeper, 1, 30, SECONDS);
 //		scheduler.schedule(new Runnable() {
 //			public void run() {beeperHandle.cancel(true);}
 //		}, nozzleMeasures.size(), SECONDS);
 		
 	}
 	
-	public static void main(String[] args) throws ParseException {
+	public static void main(String[] args) throws ParseException, IOException {
 		
 		try {
 			Scanner sc = new Scanner(new File("Dane paliwowe/Zestaw 1/nozzleMeasures.log").getAbsoluteFile());
@@ -75,8 +94,12 @@ public class Generator {
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("Fail");
+			
 		}
+		Socket s = new Socket("localhost",7);
+		os = new ObjectOutputStream(s.getOutputStream());
+		if (os == null) {System.out.println("error");}
+		is = new ObjectInputStream(s.getInputStream());
 		Generator generator = new Generator();
 		generator.send();
 	}
