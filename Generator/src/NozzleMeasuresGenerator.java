@@ -19,17 +19,26 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-public class Generator {
-	
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+public class NozzleMeasuresGenerator extends Thread {
 	int size;
 	int index = 0;
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	List<NozzleMeasure> nozzleMeasures; 
+	ObjectOutputStream os;
 
+	public NozzleMeasuresGenerator(List<NozzleMeasure> nozzleMeasures, ObjectOutputStream os) {
+		this.nozzleMeasures = nozzleMeasures;
+		this.os = os;
+	}
 	
-	public void send(List<NozzleMeasure> nozzleMeasures, ObjectOutputStream os, ObjectInputStream in) {
+	
+	
+	public void run() {
 		size = nozzleMeasures.size();
+		index = 0;
 		Runnable beeper = new Runnable() {
 			public void run() {
+				
 				for (int i = 0; i <12; i++) {
 					NozzleMeasure temp = nozzleMeasures.get(index);
 					temp.setDate(new Date());
@@ -37,8 +46,6 @@ public class Generator {
 						+ " "+ temp.literCounter + " " + temp.totalCounter + " " + temp.status);
 					try {
 						os.writeObject(temp);
-						
-						System.out.println("sended");
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
